@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The AI Dispatch — Daily AI News</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#1a1a1a;--paper:#f8f6f1;--rule:#c8c0b0;--accent:#c0392b;--accent-light:#f5e6e4;--muted:#6b6560;--white:#fff;--green:#2c7a4b;--purple:#5a3e8e;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--paper);color:var(--ink);font-family:'Source Serif 4',serif;font-size:16px;line-height:1.6;}
+  .masthead{background:var(--white);border-bottom:3px double var(--ink);}
+  .masthead-top{display:flex;justify-content:space-between;align-items:center;padding:10px 40px;border-bottom:1px solid var(--rule);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);}
+  .masthead-title{text-align:center;padding:20px 40px 16px;}
+  .masthead-title h1{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,6vw,4.8rem);font-weight:900;letter-spacing:-1px;line-height:1;color:var(--ink);}
+  .masthead-title .tagline{font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-top:5px;}
+  .masthead-rule{height:4px;background:var(--ink);margin:0 40px;}
+  .nav-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 40px;font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;}
+  .nav-links{display:flex;gap:28px;}
+  .nav-links span{cursor:pointer;color:var(--ink);font-weight:500;transition:color .2s;padding-bottom:2px;}
+  .nav-links span:hover{color:var(--accent);}
+  .nav-links span.active{color:var(--accent);border-bottom:2px solid var(--accent);}
+  .nav-auth{display:flex;gap:10px;align-items:center;}
+  .btn-nav{padding:5px 14px;border:1px solid var(--rule);background:transparent;color:var(--ink);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;border-radius:2px;transition:all .2s;font-weight:500;}
+  .btn-nav:hover{background:var(--ink);color:white;border-color:var(--ink);}
+  .btn-nav.primary{background:var(--ink);color:white;}
+  .btn-nav.primary:hover{background:var(--accent);border-color:var(--accent);}
+  .user-pill{display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:12px;}
+  .role-badge{padding:2px 8px;border-radius:2px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:white;}
+  .rb-admin{background:var(--accent);}
+  .rb-poster{background:var(--green);}
+  .rb-viewer{background:#888;}
+  .rb-pending{background:var(--purple);}
+  .ticker-wrap{background:var(--accent);color:white;padding:7px 40px;display:flex;align-items:center;gap:16px;overflow:hidden;font-family:'DM Sans',sans-serif;font-size:12px;}
+  .ticker-label{font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:10px;white-space:nowrap;border-right:1px solid rgba(255,255,255,.4);padding-right:16px;}
+  .ticker-track{overflow:hidden;flex:1;}
+  .ticker-inner{display:flex;gap:60px;white-space:nowrap;animation:tick 28s linear infinite;}
+  @keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+  .container{max-width:1200px;margin:0 auto;padding:36px 40px;}
+  .pending-banner{background:#f0ebf8;border:1px solid #c5b3e6;border-radius:3px;padding:14px 20px;margin-bottom:28px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--purple);display:flex;align-items:center;gap:10px;}
+  .write-btn-wrap{display:flex;justify-content:flex-end;margin-bottom:24px;}
+  .btn-write{padding:9px 22px;background:var(--green);color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;border-radius:2px;transition:all .2s;display:flex;align-items:center;gap:8px;}
+  .btn-write:hover{background:#235f3a;}
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000;justify-content:center;align-items:center;padding:20px;}
+  .overlay.open{display:flex;}
+  .modal{background:var(--white);border:1px solid var(--rule);width:100%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+  .modal.wide{max-width:680px;}
+  .modal.xl{max-width:900px;}
+  .modal-header{background:var(--ink);color:white;padding:18px 26px;display:flex;justify-content:space-between;align-items:center;}
+  .modal-header h2{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;}
+  .modal-close{background:none;border:none;color:white;font-size:24px;cursor:pointer;line-height:1;opacity:.7;transition:opacity .2s;}
+  .modal-close:hover{opacity:1;}
+  .modal-body{padding:26px;}
+  .modal-tabs{display:flex;border-bottom:2px solid var(--rule);margin-bottom:24px;}
+  .modal-tab{flex:1;padding:10px;text-align:center;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;}
+  .modal-tab.active{color:var(--ink);border-bottom-color:var(--ink);}
+  .tab-pane{display:none;}
+  .tab-pane.active{display:block;}
+  .form-group{margin-bottom:18px;}
+  .form-group label{display:block;font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:500;}
+  .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1px solid var(--rule);background:var(--paper);font-family:'Source Serif 4',serif;font-size:15px;color:var(--ink);outline:none;border-radius:2px;transition:border-color .2s;}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--ink);}
+  .form-group textarea{resize:vertical;min-height:130px;}
+  .form-error{color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;margin-top:8px;min-height:16px;}
+  .btn-full{width:100%;padding:13px;background:var(--ink);color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:500;border-radius:2px;transition:background .2s;margin-top:4px;}
+  .btn-full:hover{background:var(--accent);}
+  .btn-full.green{background:var(--green);}
+  .btn-full.green:hover{background:#235f3a;}
+  .btn-full:disabled{opacity:.5;cursor:not-allowed;}
+  .tag-select{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  .tag-option{padding:5px 12px;border:1px solid var(--rule);font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;font-weight:500;color:var(--muted);}
+  .tag-option:hover{border-color:var(--ink);color:var(--ink);}
+  .tag-option.selected{background:var(--ink);color:white;border-color:var(--ink);}
+  .image-preview{width:100%;max-height:200px;object-fit:cover;border:1px solid var(--rule);border-radius:2px;display:none;margin-top:10px;}
+  .admin-tabs{display:flex;gap:0;border-bottom:2px solid var(--rule);margin-bottom:20px;}
+  .admin-tab{padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;}
+  .admin-tab.active{color:var(--ink);border-bottom-color:var(--ink);}
+  .admin-pane{display:none;}
+  .admin-pane.active{display:block;}
+  .users-table{width:100%;border-collapse:collapse;font-family:'DM Sans',sans-serif;font-size:13px;}
+  .users-table th{border-bottom:2px solid var(--ink);text-align:left;padding:8px 10px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:500;}
+  .users-table td{padding:10px;border-bottom:1px solid var(--rule);color:var(--ink);vertical-align:middle;}
+  .users-table tr:last-child td{border-bottom:none;}
+  .role-sel{padding:5px 8px;border:1px solid var(--rule);background:var(--paper);font-family:'DM Sans',sans-serif;font-size:12px;border-radius:2px;color:var(--ink);cursor:pointer;}
+  .tbl-btn{background:none;border:1px solid var(--rule);padding:4px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;border-radius:2px;transition:all .2s;}
+  .tbl-btn.red{color:var(--accent);}
+  .tbl-btn.red:hover{background:var(--accent);color:white;border-color:var(--accent);}
+  .tbl-btn.grn{color:var(--green);}
+  .tbl-btn.grn:hover{background:var(--green);color:white;border-color:var(--green);}
+  .add-user-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-top:20px;padding-top:20px;border-top:1px solid var(--rule);align-items:end;}
+  .add-user-grid label{font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px;font-weight:500;}
+  .add-user-grid input,.add-user-grid select{padding:8px 10px;border:1px solid var(--rule);background:var(--paper);font-family:'DM Sans',sans-serif;font-size:12px;border-radius:2px;outline:none;width:100%;}
+  .add-user-grid input:focus,.add-user-grid select:focus{border-color:var(--ink);}
+  .btn-add{padding:8px 14px;background:var(--ink);color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;border-radius:2px;white-space:nowrap;transition:background .2s;height:34px;}
+  .btn-add:hover{background:var(--green);}
+  .badge-pending{display:inline-block;background:var(--purple);color:white;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;text-align:center;line-height:18px;margin-left:5px;}
+  .section-label{font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);font-weight:500;border-top:3px solid var(--ink);padding-top:10px;margin-bottom:24px;}
+  .featured-grid{display:grid;grid-template-columns:2fr 1fr;border:1px solid var(--rule);margin-bottom:40px;background:white;}
+  .featured-main{border-right:1px solid var(--rule);padding:28px;position:relative;}
+  .featured-side{display:flex;flex-direction:column;}
+  .side-item{padding:20px 22px;border-bottom:1px solid var(--rule);flex:1;position:relative;}
+  .side-item:last-child{border-bottom:none;}
+  .news-grid{display:grid;grid-template-columns:repeat(3,1fr);border-left:1px solid var(--rule);border-top:1px solid var(--rule);margin-bottom:40px;}
+  .news-card{padding:22px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);background:white;position:relative;}
+  .atag{display:inline-block;color:white;font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;font-weight:600;margin-bottom:10px;border-radius:1px;background:var(--ink);}
+  .atag.models{background:#1a3a5c;}
+  .atag.policy{background:#4a2c6e;}
+  .atag.research{background:#1a5c3a;}
+  .atag.industry{background:#5c3a1a;}
+  .atag.tools{background:#1a4a5c;}
+  .aheadline{font-family:'Playfair Display',serif;font-weight:700;line-height:1.25;color:var(--ink);margin-bottom:8px;}
+  .featured-main .aheadline{font-size:1.9rem;}
+  .side-item .aheadline{font-size:1.05rem;}
+  .news-card .aheadline{font-size:1.15rem;}
+  .aexcerpt{color:var(--muted);font-size:.88rem;line-height:1.55;margin-bottom:12px;}
+  .featured-main .aexcerpt{font-size:.94rem;}
+  .aimg{width:100%;object-fit:cover;border:1px solid var(--rule);margin-bottom:16px;display:block;}
+  .featured-main .aimg{height:260px;}
+  .side-item .aimg{height:130px;}
+  .news-card .aimg{height:150px;}
+  .ameta{display:flex;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:6px;}
+  .ameta-info{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);}
+  .ameta-author{font-weight:600;color:var(--ink);}
+  .like-btn{display:flex;align-items:center;gap:5px;background:none;border:1px solid var(--rule);padding:4px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);border-radius:2px;transition:all .2s;font-weight:500;}
+  .like-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .like-btn.liked{background:var(--accent-light);border-color:var(--accent);color:var(--accent);}
+  .like-btn svg{width:12px;height:12px;}
+  .card-ctrl{position:absolute;top:10px;right:10px;display:none;gap:5px;z-index:2;}
+  .show-ctrl .card-ctrl{display:flex;}
+  .ctrl-e,.ctrl-d{padding:3px 9px;font-family:'DM Sans',sans-serif;font-size:10px;text-transform:uppercase;border:none;cursor:pointer;border-radius:2px;font-weight:600;}
+  .ctrl-e{background:var(--ink);color:white;}
+  .ctrl-e:hover{background:#444;}
+  .ctrl-d{background:var(--accent);color:white;}
+  .ctrl-d:hover{background:#a93226;}
+  .col-div{display:flex;align-items:center;gap:12px;margin:32px 0;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;}
+  .col-div::before,.col-div::after{content:'';flex:1;height:1px;background:var(--rule);}
+  .empty-state{text-align:center;padding:80px 40px;color:var(--muted);background:white;border:1px solid var(--rule);}
+  .empty-state h3{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:10px;color:var(--ink);}
+  .empty-state p{font-family:'DM Sans',sans-serif;font-size:14px;}
+  .loading-state{text-align:center;padding:60px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);}
+  .toast{position:fixed;bottom:28px;right:28px;background:var(--ink);color:white;padding:12px 22px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:3px;z-index:9999;transform:translateY(70px);opacity:0;transition:all .3s;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:320px;}
+  .toast.show{transform:translateY(0);opacity:1;}
+  .toast.ok{background:var(--green);}
+  .toast.err{background:var(--accent);}
+  @media(max-width:768px){
+    .masthead-top,.container,.ticker-wrap{padding-left:16px;padding-right:16px;}
+    .nav-bar{padding:10px 16px;flex-wrap:wrap;gap:10px;}
+    .masthead-rule{margin:0 16px;}
+    .masthead-title{padding:14px 16px;}
+    .featured-grid{grid-template-columns:1fr;}
+    .featured-main{border-right:none;border-bottom:1px solid var(--rule);}
+    .news-grid{grid-template-columns:1fr;}
+    .add-user-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-top">
+    <span id="todayDate"></span>
+    <span>Global AI Coverage</span>
+    <span id="postCountLbl">—</span>
+  </div>
+  <div class="masthead-title">
+    <h1>The AI Dispatch</h1>
+    <div class="tagline">Your Daily Source for Artificial Intelligence News</div>
+  </div>
+  <div class="masthead-rule"></div>
+  <nav class="nav-bar">
+    <div class="nav-links">
+      <span class="active" onclick="filterNav(this,'all')">All</span>
+      <span onclick="filterNav(this,'models')">Models</span>
+      <span onclick="filterNav(this,'research')">Research</span>
+      <span onclick="filterNav(this,'policy')">Policy</span>
+      <span onclick="filterNav(this,'industry')">Industry</span>
+      <span onclick="filterNav(this,'tools')">Tools</span>
+    </div>
+    <div class="nav-auth" id="navAuth"></div>
+  </nav>
+</div>
+
+<div class="ticker-wrap">
+  <div class="ticker-label">Breaking</div>
+  <div class="ticker-track">
+    <div class="ticker-inner" id="tickerInner">
+      <span>Welcome to The AI Dispatch — Your daily briefing on artificial intelligence</span>
+      <span>Stay informed on the latest AI models, research, policy, and industry news</span>
+      <span>Welcome to The AI Dispatch — Your daily briefing on artificial intelligence</span>
+      <span>Stay informed on the latest AI models, research, policy, and industry news</span>
+    </div>
+  </div>
+</div>
+
+<main class="container">
+  <div id="pendingBanner" style="display:none;" class="pending-banner">
+    <span>⏳</span>
+    <span><strong>Your account is pending approval.</strong> An admin will grant you posting access soon. You can read and like articles in the meantime.</span>
+  </div>
+  <div id="writeBtnWrap" style="display:none;" class="write-btn-wrap">
+    <button class="btn-write" onclick="openCompose()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Write Article
+    </button>
+  </div>
+  <div id="postsArea"><div class="loading-state">Loading articles...</div></div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- AUTH MODAL -->
+<div class="overlay" id="authOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="authTitle">Sign In</h2>
+      <button class="modal-close" onclick="closeModal('authOverlay')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <div class="modal-tab active" id="tabLogin" onclick="switchAuthTab('login')">Sign In</div>
+        <div class="modal-tab" id="tabReg" onclick="switchAuthTab('register')">Register</div>
+      </div>
+      <div class="tab-pane active" id="paneLogin">
+        <div class="form-group"><label>Email</label><input type="email" id="liEmail" placeholder="your@email.com" autocomplete="email"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="liPass" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <div class="form-error" id="liErr"></div>
+        <button class="btn-full" id="loginBtn" onclick="doLogin()">Sign In</button>
+      </div>
+      <div class="tab-pane" id="paneReg">
+        <div class="form-group"><label>Display Name</label><input type="text" id="reName" placeholder="Your name"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="reEmail" placeholder="your@email.com" autocomplete="email"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="rePass" placeholder="Choose a password (min 6 chars)" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()"></div>
+        <div class="form-error" id="reErr"></div>
+        <button class="btn-full green" id="registerBtn" onclick="doRegister()">Create Account</button>
+        <p style="font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);text-align:center;margin-top:14px;">New accounts start as <strong>Viewer</strong>. An admin grants posting access.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPOSE MODAL -->
+<div class="overlay" id="composeOverlay">
+  <div class="modal wide">
+    <div class="modal-header">
+      <h2 id="composeLbl">Write an Article</h2>
+      <button class="modal-close" onclick="closeModal('composeOverlay')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editId">
+      <div class="form-group"><label>Headline</label><input type="text" id="pTitle" placeholder="Write a compelling headline..."></div>
+      <div class="form-group">
+        <label>Category</label>
+        <div class="tag-select" id="tagPicker">
+          <div class="tag-option selected" data-tag="general">General</div>
+          <div class="tag-option" data-tag="models">Models</div>
+          <div class="tag-option" data-tag="research">Research</div>
+          <div class="tag-option" data-tag="policy">Policy</div>
+          <div class="tag-option" data-tag="industry">Industry</div>
+          <div class="tag-option" data-tag="tools">Tools</div>
+        </div>
+      </div>
+      <div class="form-group"><label>Article Body</label><textarea id="pBody" placeholder="Write your article here..."></textarea></div>
+      <div class="form-group">
+        <label>Cover Image (optional)</label>
+        <input type="file" id="pImg" accept="image/*" onchange="previewImg(this)" style="padding:6px;">
+        <img id="imgPrev" class="image-preview" alt="Preview">
+      </div>
+      <div class="form-error" id="cErr"></div>
+      <button class="btn-full" id="publishBtn" onclick="publishPost()">Publish Article</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="overlay" id="adminOverlay">
+  <div class="modal xl">
+    <div class="modal-header">
+      <h2>Admin Panel</h2>
+      <button class="modal-close" onclick="closeModal('adminOverlay')">&#x2715;</button>
+    </div>
+    <div class="modal-body" style="max-height:75vh;overflow-y:auto;">
+      <div class="admin-tabs">
+        <div class="admin-tab active" id="atab-users" onclick="switchAdminTab('users')">All Users</div>
+        <div class="admin-tab" id="atab-pending" onclick="switchAdminTab('pending')">Pending Approval</div>
+      </div>
+      <div class="admin-pane active" id="apane-users"><div class="loading-state">Loading users...</div></div>
+      <div class="admin-pane" id="apane-pending"><div class="loading-state">Loading...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, doc, addDoc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAD-CJzZGzsItzwbZYhFg2wbtFglOm4nB4",
+  authDomain: "ai-dispatch-836e4.firebaseapp.com",
+  projectId: "ai-dispatch-836e4",
+  storageBucket: "ai-dispatch-836e4.firebasestorage.app",
+  messagingSenderId: "1000524165259",
+  appId: "1:1000524165259:web:cf44e34c26af2e59b8248e",
+  measurementId: "G-4WD8WD7QM6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+
+// ── STATE ──
+let me = null; // { uid, email, displayName, role }
+let allPosts = [];
+let selTag = 'general';
+let curFilter = 'all';
+let editingId = null;
+let unsubPosts = null;
+
+// ── BOOT ──
+document.getElementById('todayDate').textContent =
+  new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+document.getElementById('tagPicker').addEventListener('click', e => {
+  const opt = e.target.closest('.tag-option'); if (!opt) return;
+  document.querySelectorAll('.tag-option').forEach(t => t.classList.remove('selected'));
+  opt.classList.add('selected'); selTag = opt.dataset.tag;
+});
+
+document.querySelectorAll('.overlay').forEach(o =>
+  o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); }));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open'));
+});
+
+// ── AUTH STATE ──
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (snap.exists()) {
+      me = { uid: user.uid, email: user.email, displayName: snap.data().displayName || user.displayName, role: snap.data().role };
+    } else {
+      me = null;
+    }
+  } else {
+    me = null;
+  }
+  updateUI();
+  subscribePosts();
+});
+
+// ── SUBSCRIBE TO POSTS ──
+function subscribePosts() {
+  if (unsubPosts) unsubPosts();
+  const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+  unsubPosts = onSnapshot(q, snap => {
+    allPosts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderPosts();
+    buildTicker();
+  });
+}
+
+// ── UI STATE ──
+function updateUI() {
+  const nav = document.getElementById('navAuth');
+  const wb = document.getElementById('writeBtnWrap');
+  const pb = document.getElementById('pendingBanner');
+  if (!me) {
+    nav.innerHTML = '<button class="btn-nav" onclick="window.openAuth(\'login\')">Sign In</button><button class="btn-nav primary" onclick="window.openAuth(\'register\')">Register</button>';
+    wb.style.display = 'none'; pb.style.display = 'none';
+  } else {
+    const canPost = me.role === 'poster' || me.role === 'admin';
+    const isAdmin = me.role === 'admin';
+    nav.innerHTML = '<div class="user-pill"><span style="font-family:\'DM Sans\',sans-serif;font-size:12px;font-weight:500;">' + (me.displayName || me.email) + '</span><span class="role-badge rb-' + me.role + '">' + me.role + '</span>' + (isAdmin ? '<button class="btn-nav" onclick="window.openAdminPanel()" style="margin-left:4px;">Admin</button>' : '') + '<button class="btn-nav" onclick="window.doLogout()">Sign Out</button></div>';
+    wb.style.display = canPost ? 'flex' : 'none';
+    pb.style.display = me.role === 'pending' ? 'block' : 'none';
+  }
+  document.body.classList.toggle('show-ctrl', !!(me && (me.role === 'admin' || me.role === 'poster')));
+}
+
+// ── AUTH ──
+window.openAuth = function(tab) { openModal('authOverlay'); switchAuthTab(tab || 'login'); };
+
+window.switchAuthTab = function(tab) {
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('tabReg').classList.toggle('active', tab === 'register');
+  document.getElementById('paneLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('paneReg').classList.toggle('active', tab === 'register');
+  document.getElementById('authTitle').textContent = tab === 'login' ? 'Sign In' : 'Create Account';
+};
+
+window.doLogin = async function() {
+  const email = document.getElementById('liEmail').value.trim();
+  const pass = document.getElementById('liPass').value;
+  document.getElementById('liErr').textContent = '';
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    closeModal('authOverlay');
+    showToast('Welcome back!', 'ok');
+  } catch(e) {
+    document.getElementById('liErr').textContent = e.code === 'auth/invalid-credential' ? 'Invalid email or password.' : e.message;
+  }
+  btn.disabled = false; btn.textContent = 'Sign In';
+};
+
+window.doRegister = async function() {
+  const name = document.getElementById('reName').value.trim();
+  const email = document.getElementById('reEmail').value.trim();
+  const pass = document.getElementById('rePass').value;
+  document.getElementById('reErr').textContent = '';
+  if (!name) { document.getElementById('reErr').textContent = 'Please enter your name.'; return; }
+  const btn = document.getElementById('registerBtn');
+  btn.disabled = true; btn.textContent = 'Creating account...';
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: name });
+    await setDoc(doc(db, 'users', cred.user.uid), { displayName: name, email, role: 'pending', createdAt: serverTimestamp() });
+    closeModal('authOverlay');
+    showToast('Account created! Waiting for admin approval.', 'ok');
+  } catch(e) {
+    document.getElementById('reErr').textContent = e.code === 'auth/email-already-in-use' ? 'Email already registered.' : e.message;
+  }
+  btn.disabled = false; btn.textContent = 'Create Account';
+};
+
+window.doLogout = async function() {
+  await signOut(auth);
+  showToast('Signed out.');
+};
+
+// ── ADMIN PANEL ──
+window.openAdminPanel = async function() {
+  openModal('adminOverlay');
+  await loadAdminUsers();
+  await loadAdminPending();
+};
+
+window.switchAdminTab = function(tab) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('atab-' + tab).classList.add('active');
+  document.getElementById('apane-' + tab).classList.add('active');
+};
+
+async function loadAdminUsers() {
+  const snap = await getDocs(collection(db, 'users'));
+  const users = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+  const adminCount = users.filter(u => u.role === 'admin').length;
+  const rows = users.map(u => {
+    const isSelf = me && me.uid === u.uid;
+    const isLastAdmin = u.role === 'admin' && adminCount <= 1;
+    const canDel = !isSelf && !isLastAdmin;
+    const delCell = canDel ? '<button class="tbl-btn red" onclick="window.deleteUser(\'' + u.uid + '\')">Remove</button>' : '<span style="font-size:11px;color:var(--muted);">' + (isLastAdmin ? 'Last admin' : 'You') + '</span>';
+    return '<tr><td><strong>' + (u.displayName || u.email) + '</strong>' + (isSelf ? ' <span style="font-size:10px;background:#eee;padding:1px 5px;border-radius:2px;font-family:\'DM Sans\',sans-serif;">you</span>' : '') + '<br><span style="font-size:11px;color:var(--muted);font-family:\'DM Sans\',sans-serif;">' + u.email + '</span></td><td><select class="role-sel" onchange="window.updateUserRole(\'' + u.uid + '\',this.value)" ' + (isLastAdmin ? 'disabled' : '') + '><option value="pending" ' + (u.role === 'pending' ? 'selected' : '') + '>Pending</option><option value="viewer" ' + (u.role === 'viewer' ? 'selected' : '') + '>Viewer</option><option value="poster" ' + (u.role === 'poster' ? 'selected' : '') + '>Poster</option><option value="admin" ' + (u.role === 'admin' ? 'selected' : '') + '>Admin</option></select></td><td>' + delCell + '</td></tr>';
+  }).join('');
+  document.getElementById('apane-users').innerHTML = '<table class="users-table"><thead><tr><th>User</th><th>Role</th><th>Action</th></tr></thead><tbody>' + rows + '</tbody></table><div class="add-user-grid"><div><label>Email</label><input type="email" id="nuEmail" placeholder="email@example.com"></div><div><label>Password</label><input type="password" id="nuPass" placeholder="password"></div><div><label>Role</label><select id="nuRole"><option value="viewer">Viewer</option><option value="poster">Poster</option><option value="admin">Admin</option></select></div><div><label>&nbsp;</label><button class="btn-add" onclick="window.addUserByAdmin()">Add</button></div></div><div class="form-error" id="nuErr" style="margin-top:8px;"></div>';
+}
+
+async function loadAdminPending() {
+  const snap = await getDocs(collection(db, 'users'));
+  const pending = snap.docs.filter(d => d.data().role === 'pending').map(d => ({ uid: d.id, ...d.data() }));
+  const btn = document.getElementById('atab-pending');
+  btn.innerHTML = 'Pending Approval' + (pending.length > 0 ? '<span class="badge-pending">' + pending.length + '</span>' : '');
+  if (!pending.length) { document.getElementById('apane-pending').innerHTML = '<p style="font-family:\'DM Sans\',sans-serif;font-size:13px;color:var(--muted);padding:20px 0;">No pending approvals right now.</p>'; return; }
+  const rows = pending.map(u => '<tr><td><strong>' + (u.displayName || u.email) + '</strong><br><span style="font-size:11px;color:var(--muted);font-family:\'DM Sans\',sans-serif;">' + u.email + '</span></td><td><button class="tbl-btn grn" onclick="window.approveUser(\'' + u.uid + '\',\'viewer\')" style="margin-right:4px;">As Viewer</button><button class="tbl-btn grn" onclick="window.approveUser(\'' + u.uid + '\',\'poster\')">As Poster</button></td><td><button class="tbl-btn red" onclick="window.deleteUser(\'' + u.uid + '\')">Reject</button></td></tr>').join('');
+  document.getElementById('apane-pending').innerHTML = '<p style="font-family:\'DM Sans\',sans-serif;font-size:12px;color:var(--muted);margin-bottom:14px;">Approve users and choose their role, or reject them.</p><table class="users-table"><thead><tr><th>User</th><th>Approve As</th><th>Reject</th></tr></thead><tbody>' + rows + '</tbody></table>';
+}
+
+window.approveUser = async function(uid, role) {
+  await updateDoc(doc(db, 'users', uid), { role });
+  showToast('User approved as ' + role + '.', 'ok');
+  await loadAdminUsers(); await loadAdminPending();
+};
+
+window.updateUserRole = async function(uid, role) {
+  await updateDoc(doc(db, 'users', uid), { role });
+  if (me && me.uid === uid) { me.role = role; updateUI(); }
+  showToast('Role updated to ' + role + '.', 'ok');
+  await loadAdminUsers(); await loadAdminPending();
+};
+
+window.deleteUser = async function(uid) {
+  if (!confirm('Remove this user?')) return;
+  await deleteDoc(doc(db, 'users', uid));
+  showToast('User removed.');
+  await loadAdminUsers(); await loadAdminPending();
+};
+
+window.addUserByAdmin = async function() {
+  const email = document.getElementById('nuEmail').value.trim();
+  const pass = document.getElementById('nuPass').value;
+  const role = document.getElementById('nuRole').value;
+  document.getElementById('nuErr').textContent = '';
+  if (!email) { document.getElementById('nuErr').textContent = 'Please enter an email.'; return; }
+  if (!pass || pass.length < 6) { document.getElementById('nuErr').textContent = 'Password must be at least 6 characters.'; return; }
+  try {
+    const res = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAD-CJzZGzsItzwbZYhFg2wbtFglOm4nB4', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass, returnSecureToken: true })
+    });
+    const data = await res.json();
+    if (data.error) { document.getElementById('nuErr').textContent = data.error.message; return; }
+    await setDoc(doc(db, 'users', data.localId), { displayName: email.split('@')[0], email, role, createdAt: serverTimestamp() });
+    showToast('User added as ' + role + '.', 'ok');
+    await loadAdminUsers();
+  } catch(e) { document.getElementById('nuErr').textContent = e.message; }
+};
+
+// ── COMPOSE ──
+window.openCompose = function(postId) {
+  editingId = postId || null;
+  document.getElementById('cErr').textContent = '';
+  document.getElementById('pImg').value = '';
+  document.getElementById('imgPrev').style.display = 'none';
+  if (postId) {
+    const p = allPosts.find(x => x.id === postId); if (!p) return;
+    document.getElementById('composeLbl').textContent = 'Edit Article';
+    document.getElementById('editId').value = postId;
+    document.getElementById('pTitle').value = p.title;
+    document.getElementById('pBody').value = p.body;
+    selTag = p.tag;
+    if (p.image) { document.getElementById('imgPrev').src = p.image; document.getElementById('imgPrev').style.display = 'block'; }
+  } else {
+    document.getElementById('composeLbl').textContent = 'Write an Article';
+    document.getElementById('editId').value = '';
+    document.getElementById('pTitle').value = '';
+    document.getElementById('pBody').value = '';
+    selTag = 'general';
+  }
+  document.querySelectorAll('.tag-option').forEach(t => t.classList.toggle('selected', t.dataset.tag === selTag));
+  openModal('composeOverlay');
+};
+
+window.previewImg = function(input) {
+  const file = input.files[0]; const prev = document.getElementById('imgPrev');
+  if (file) { const r = new FileReader(); r.onload = e => { prev.src = e.target.result; prev.style.display = 'block'; }; r.readAsDataURL(file); }
+  else prev.style.display = 'none';
+};
+
+window.publishPost = async function() {
+  const title = document.getElementById('pTitle').value.trim();
+  const body = document.getElementById('pBody').value.trim();
+  if (!title) { document.getElementById('cErr').textContent = 'Please add a headline.'; return; }
+  if (!body) { document.getElementById('cErr').textContent = 'Please write the article body.'; return; }
+  const btn = document.getElementById('publishBtn');
+  btn.disabled = true; btn.textContent = 'Publishing...';
+  try {
+    let imageUrl = null;
+    const file = document.getElementById('pImg').files[0];
+    if (file) {
+      const r = new FileReader();
+      imageUrl = await new Promise(res => { r.onload = e => res(e.target.result); r.readAsDataURL(file); });
+    } else if (editingId) {
+      const ex = allPosts.find(p => p.id === editingId);
+      imageUrl = ex ? ex.image : null;
+    }
+    if (editingId) {
+      await updateDoc(doc(db, 'posts', editingId), { title, body, tag: selTag, image: imageUrl, editedAt: serverTimestamp() });
+      showToast('Article updated!', 'ok');
+    } else {
+      await addDoc(collection(db, 'posts'), { title, body, tag: selTag, image: imageUrl, author: me.displayName || me.email, authorId: me.uid, createdAt: serverTimestamp(), likes: 0, likedBy: [] });
+      showToast('Article published!', 'ok');
+    }
+    closeModal('composeOverlay');
+  } catch(e) { document.getElementById('cErr').textContent = e.message; }
+  btn.disabled = false; btn.textContent = 'Publish Article';
+};
+
+window.deletePost = async function(id) {
+  if (!confirm('Delete this article permanently?')) return;
+  await deleteDoc(doc(db, 'posts', id));
+  showToast('Article deleted.');
+};
+
+// ── LIKES ──
+window.toggleLike = async function(id) {
+  const p = allPosts.find(x => x.id === id); if (!p) return;
+  const uid = me ? me.uid : ('guest_' + (localStorage.getItem('guestId') || (() => { const g = Math.random().toString(36).slice(2); localStorage.setItem('guestId', g); return g; })()));
+  const likedBy = p.likedBy || [];
+  const hasLiked = likedBy.includes(uid);
+  const newLikedBy = hasLiked ? likedBy.filter(x => x !== uid) : [...likedBy, uid];
+  await updateDoc(doc(db, 'posts', id), { likes: newLikedBy.length, likedBy: newLikedBy });
+};
+
+function isLiked(p) {
+  const uid = me ? me.uid : ('guest_' + localStorage.getItem('guestId'));
+  return (p.likedBy || []).includes(uid);
+}
+
+// ── FILTER ──
+window.filterNav = function(el, tag) {
+  curFilter = tag;
+  document.querySelectorAll('.nav-links span').forEach(s => s.classList.remove('active'));
+  el.classList.add('active'); renderPosts();
+};
+
+// ── RENDER ──
+function fmt(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+const heart = on => '<svg viewBox="0 0 24 24" fill="' + (on ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+
+function canEdit(p) { return me && (me.role === 'admin' || (me.role === 'poster' && me.uid === p.authorId)); }
+function ctrlHtml(p) { if (!canEdit(p)) return ''; return '<div class="card-ctrl"><button class="ctrl-e" onclick="window.openCompose(\'' + p.id + '\')">Edit</button><button class="ctrl-d" onclick="window.deletePost(\'' + p.id + '\')">Delete</button></div>'; }
+function likeHtml(p) { const on = isLiked(p); return '<button class="like-btn ' + (on ? 'liked' : '') + '" onclick="window.toggleLike(\'' + p.id + '\')">' + heart(on) + ' ' + (p.likes || 0) + '</button>'; }
+
+function featuredCard(p) { return '<div class="featured-main">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 200 ? p.body.slice(0, 200) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info">By <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '') + '</div>' + likeHtml(p) + '</div></div>'; }
+function sideCard(p) { return '<div class="side-item">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 100 ? p.body.slice(0, 100) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
+function gridCard(p) { return '<div class="news-card">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 110 ? p.body.slice(0, 110) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
+
+function renderPosts() {
+  let posts = allPosts;
+  document.getElementById('postCountLbl').textContent = posts.length + ' Article' + (posts.length !== 1 ? 's' : '') + ' Published';
+  if (curFilter !== 'all') posts = posts.filter(p => p.tag === curFilter);
+  const area = document.getElementById('postsArea');
+  if (!posts.length) { area.innerHTML = '<div class="empty-state"><h3>' + (curFilter !== 'all' ? 'No articles in this category' : 'No articles yet') + '</h3><p>' + (curFilter !== 'all' ? 'Try another category.' : 'The first article will appear here.') + '</p></div>'; return; }
+  let html = '<div class="section-label">Top Stories</div>';
+  html += '<div class="featured-grid">' + featuredCard(posts[0]) + '<div class="featured-side">' + (posts.length > 1 ? sideCard(posts[1]) : '') + (posts.length > 2 ? sideCard(posts[2]) : '') + '</div></div>';
+  if (posts.length > 3) { html += '<div class="col-div">More Stories</div><div class="news-grid">'; for (let i = 3; i < posts.length; i++) html += gridCard(posts[i]); html += '</div>'; }
+  area.innerHTML = html;
+}
+
+function buildTicker() {
+  if (!allPosts.length) return;
+  const items = [...allPosts.slice(0, 8), ...allPosts.slice(0, 8)].map(p => '<span>' + p.title + '</span>').join('');
+  document.getElementById('tickerInner').innerHTML = items;
+}
+
+// ── MODAL HELPERS ──
+window.openModal = openModal;
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+window.closeModal = closeModal;
+
+// ── TOAST ──
+let _tt;
+function showToast(msg, type) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show ' + (type || '');
+  clearTimeout(_tt); _tt = setTimeout(() => t.classList.remove('show'), 3200);
+}
+</script>
+</body>
+</html>
