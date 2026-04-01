@@ -112,7 +112,7 @@
   .featured-main .aheadline{font-size:1.9rem;}
   .side-item .aheadline{font-size:1.05rem;}
   .news-card .aheadline{font-size:1.15rem;}
-  .aexcerpt{color:var(--muted);font-size:.88rem;line-height:1.55;margin-bottom:12px;}
+  .aexcerpt{color:#3a3530;font-size:.88rem;line-height:1.55;margin-bottom:12px;}
   .featured-main .aexcerpt{font-size:.94rem;}
   .aimg{width:100%;object-fit:cover;border:1px solid var(--rule);margin-bottom:16px;display:block;}
   .featured-main .aimg{height:260px;}
@@ -138,6 +138,12 @@
   .empty-state h3{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:10px;color:var(--ink);}
   .empty-state p{font-family:'DM Sans',sans-serif;font-size:14px;}
   .loading-state{text-align:center;padding:60px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);}
+  .read-more{display:inline-block;margin-top:4px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:600;color:var(--accent);cursor:pointer;text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s;}
+  .read-more:hover{border-bottom-color:var(--accent);}
+  .article-body{font-family:'Source Serif 4',serif;font-size:1rem;line-height:1.8;color:#2a2520;white-space:pre-wrap;word-wrap:break-word;}
+  .article-full-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;line-height:1.25;color:var(--ink);margin-bottom:16px;}
+  .article-full-meta{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--rule);}
+  .article-full-img{width:100%;max-height:320px;object-fit:cover;border:1px solid var(--rule);margin-bottom:20px;display:block;border-radius:2px;}
   .toast{position:fixed;bottom:28px;right:28px;background:var(--ink);color:white;padding:12px 22px;font-family:'DM Sans',sans-serif;font-size:13px;border-radius:3px;z-index:9999;transform:translateY(70px);opacity:0;transition:all .3s;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:320px;}
   .toast.show{transform:translateY(0);opacity:1;}
   .toast.ok{background:var(--green);}
@@ -305,6 +311,17 @@
       <div class="admin-pane active" id="apane-users"><div class="loading-state">Loading users...</div></div>
       <div class="admin-pane" id="apane-pending"><div class="loading-state">Loading...</div></div>
     </div>
+  </div>
+</div>
+
+<!-- READ ARTICLE MODAL -->
+<div class="overlay" id="readOverlay">
+  <div class="modal wide" style="max-height:90vh;display:flex;flex-direction:column;">
+    <div class="modal-header">
+      <h2>Article</h2>
+      <button class="modal-close" onclick="closeModal('readOverlay')">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="readModalBody" style="overflow-y:auto;flex:1;"></div>
   </div>
 </div>
 
@@ -626,12 +643,13 @@ function fmt(ts) {
 const heart = on => '<svg viewBox="0 0 24 24" fill="' + (on ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
 
 function canEdit(p) { return me && (me.role === 'admin' || (me.role === 'poster' && me.uid === p.authorId)); }
-function ctrlHtml(p) { if (!canEdit(p)) return ''; return '<div class="card-ctrl"><button class="ctrl-e" onclick="window.openCompose(\'' + p.id + '\')">Edit</button><button class="ctrl-d" onclick="window.deletePost(\'' + p.id + '\')">Delete</button></div>'; }
-function likeHtml(p) { const on = isLiked(p); return '<button class="like-btn ' + (on ? 'liked' : '') + '" onclick="window.toggleLike(\'' + p.id + '\')">' + heart(on) + ' ' + (p.likes || 0) + '</button>'; }
+function ctrlHtml(p) { if (!canEdit(p)) return ''; return '<div class="card-ctrl"><button class="ctrl-e" onclick="event.stopPropagation();window.openCompose(\'' + p.id + '\')">Edit</button><button class="ctrl-d" onclick="event.stopPropagation();window.deletePost(\'' + p.id + '\')">Delete</button></div>'; }
+function likeHtml(p) { const on = isLiked(p); return '<button class="like-btn ' + (on ? 'liked' : '') + '" onclick="event.stopPropagation();window.toggleLike(\'' + p.id + '\')">' + heart(on) + ' ' + (p.likes || 0) + '</button>'; }
 
-function featuredCard(p) { return '<div class="featured-main">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 200 ? p.body.slice(0, 200) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info">By <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '') + '</div>' + likeHtml(p) + '</div></div>'; }
-function sideCard(p) { return '<div class="side-item">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 100 ? p.body.slice(0, 100) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
-function gridCard(p) { return '<div class="news-card">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 110 ? p.body.slice(0, 110) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
+function excerpt(body, len) { const t = body.replace(/\n/g,' ').trim(); return t.length > len ? t.slice(0, len) + '…' : t; }
+function featuredCard(p) { return '<div class="featured-main" style="cursor:pointer;" onclick="window.openArticle(\'' + p.id + '\')">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + excerpt(p.body, 200) + '</div><span class="read-more">Read more →</span><div class="ameta"><div class="ameta-info">By <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '') + '</div>' + likeHtml(p) + '</div></div>'; }
+function sideCard(p) { return '<div class="side-item" style="cursor:pointer;" onclick="window.openArticle(\'' + p.id + '\')">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + excerpt(p.body, 100) + '</div><span class="read-more">Read more →</span><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
+function gridCard(p) { return '<div class="news-card" style="cursor:pointer;" onclick="window.openArticle(\'' + p.id + '\')">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + excerpt(p.body, 110) + '</div><span class="read-more">Read more →</span><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
 
 function renderPosts() {
   let posts = allPosts;
@@ -656,6 +674,19 @@ window.openModal = openModal;
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 window.closeModal = closeModal;
+
+// ── READ ARTICLE ──
+window.openArticle = function(id) {
+  const p = allPosts.find(x => x.id === id); if (!p) return;
+  const body = document.getElementById('readModalBody');
+  body.innerHTML =
+    (p.image ? '<img src="' + p.image + '" alt="" class="article-full-img">' : '') +
+    '<span class="atag ' + p.tag + '" style="margin-bottom:14px;">' + p.tag + '</span>' +
+    '<div class="article-full-title">' + p.title + '</div>' +
+    '<div class="article-full-meta">By <strong>' + p.author + '</strong> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '') + '</div>' +
+    '<div class="article-body">' + p.body.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+  openModal('readOverlay');
+};
 
 // ── TOAST ──
 let _tt;
