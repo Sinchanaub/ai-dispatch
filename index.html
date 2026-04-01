@@ -114,10 +114,10 @@
   .news-card .aheadline{font-size:1.15rem;}
   .aexcerpt{color:#3a3530;font-size:.88rem;line-height:1.55;margin-bottom:12px;}
   .featured-main .aexcerpt{font-size:.94rem;}
-  .aimg{width:100%;object-fit:cover;border:1px solid var(--rule);margin-bottom:16px;display:block;}
-  .featured-main .aimg{height:260px;}
-  .side-item .aimg{height:130px;}
-  .news-card .aimg{height:150px;}
+  .aimg{width:100%;object-fit:cover;object-position:center top;border:1px solid var(--rule);margin-bottom:16px;display:block;border-radius:2px;}
+  .featured-main .aimg{height:clamp(180px,28vw,320px);}
+  .side-item .aimg{height:clamp(100px,15vw,160px);}
+  .news-card .aimg{height:clamp(120px,18vw,200px);}
   .ameta{display:flex;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:6px;}
   .ameta-info{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);}
   .ameta-author{font-weight:600;color:var(--ink);}
@@ -287,7 +287,14 @@
       <div class="form-group"><label>Article Body</label><textarea id="pBody" placeholder="Write your article here..."></textarea></div>
       <div class="form-group">
         <label>Cover Image (optional)</label>
-        <input type="file" id="pImg" accept="image/*" onchange="previewImg(this)" style="padding:6px;">
+        <div id="imgCurrentWrap" style="display:none;margin-bottom:10px;">
+          <div style="font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);margin-bottom:6px;">Current photo:</div>
+          <div style="position:relative;width:100%;">
+            <img id="imgCurrent" src="" alt="Current" style="width:100%;max-height:180px;object-fit:cover;object-position:center;border:1px solid var(--rule);border-radius:2px;display:block;">
+            <button type="button" id="removeImgBtn" onclick="removeCurrentImage()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.65);color:white;border:none;border-radius:2px;padding:4px 10px;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;">&#x2715; Remove</button>
+          </div>
+        </div>
+        <input type="file" id="pImg" accept="image/*" onchange="previewImg(this)" style="padding:6px;width:100%;">
         <img id="imgPrev" class="image-preview" alt="Preview">
       </div>
       <div class="form-error" id="cErr"></div>
@@ -551,7 +558,10 @@ window.openCompose = function(postId) {
   editingId = postId || null;
   document.getElementById('cErr').textContent = '';
   document.getElementById('pImg').value = '';
+  document.getElementById('imgPrev').src = '';
   document.getElementById('imgPrev').style.display = 'none';
+  document.getElementById('imgCurrentWrap').style.display = 'none';
+  document.getElementById('imgCurrent').src = '';
   if (postId) {
     const p = allPosts.find(x => x.id === postId); if (!p) return;
     document.getElementById('composeLbl').textContent = 'Edit Article';
@@ -559,7 +569,11 @@ window.openCompose = function(postId) {
     document.getElementById('pTitle').value = p.title;
     document.getElementById('pBody').value = p.body;
     selTag = p.tag;
-    if (p.image) { document.getElementById('imgPrev').src = p.image; document.getElementById('imgPrev').style.display = 'block'; }
+    if (p.image) {
+      // Show existing image with remove button; file input is for replacing it
+      document.getElementById('imgCurrent').src = p.image;
+      document.getElementById('imgCurrentWrap').style.display = 'block';
+    }
   } else {
     document.getElementById('composeLbl').textContent = 'Write an Article';
     document.getElementById('editId').value = '';
@@ -571,10 +585,24 @@ window.openCompose = function(postId) {
   openModal('composeOverlay');
 };
 
+window.removeCurrentImage = function() {
+  document.getElementById('imgCurrent').src = '';
+  document.getElementById('imgCurrentWrap').style.display = 'none';
+  // Mark image as removed so publishPost knows to clear it
+  document.getElementById('imgCurrent').dataset.removed = 'true';
+};
+
 window.previewImg = function(input) {
   const file = input.files[0]; const prev = document.getElementById('imgPrev');
-  if (file) { const r = new FileReader(); r.onload = e => { prev.src = e.target.result; prev.style.display = 'block'; }; r.readAsDataURL(file); }
-  else prev.style.display = 'none';
+  if (file) {
+    // Hide the existing photo block — new upload will replace it
+    document.getElementById('imgCurrentWrap').style.display = 'none';
+    const r = new FileReader();
+    r.onload = e => { prev.src = e.target.result; prev.style.display = 'block'; };
+    r.readAsDataURL(file);
+  } else {
+    prev.src = ''; prev.style.display = 'none';
+  }
 };
 
 window.publishPost = async function() {
@@ -587,13 +615,23 @@ window.publishPost = async function() {
   try {
     let imageUrl = null;
     const file = document.getElementById('pImg').files[0];
+    const imgCurrentEl = document.getElementById('imgCurrent');
+    const wasRemoved = imgCurrentEl.dataset.removed === 'true';
+
     if (file) {
+      // New image uploaded — convert to base64
       const r = new FileReader();
       imageUrl = await new Promise(res => { r.onload = e => res(e.target.result); r.readAsDataURL(file); });
-    } else if (editingId) {
+    } else if (editingId && !wasRemoved) {
+      // Editing but no new file and not removed — keep existing image
       const ex = allPosts.find(p => p.id === editingId);
       imageUrl = ex ? ex.image : null;
     }
+    // If wasRemoved and no new file, imageUrl stays null (photo deleted)
+
+    // Reset removed flag
+    imgCurrentEl.dataset.removed = 'false';
+
     if (editingId) {
       await updateDoc(doc(db, 'posts', editingId), { title, body, tag: selTag, image: imageUrl, editedAt: serverTimestamp() });
       showToast('Article updated!', 'ok');
