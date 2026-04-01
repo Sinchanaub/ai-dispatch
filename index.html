@@ -646,7 +646,19 @@ function canEdit(p) { return me && (me.role === 'admin' || (me.role === 'poster'
 function ctrlHtml(p) { if (!canEdit(p)) return ''; return '<div class="card-ctrl"><button class="ctrl-e" onclick="event.stopPropagation();window.openCompose(\'' + p.id + '\')">Edit</button><button class="ctrl-d" onclick="event.stopPropagation();window.deletePost(\'' + p.id + '\')">Delete</button></div>'; }
 function likeHtml(p) { const on = isLiked(p); return '<button class="like-btn ' + (on ? 'liked' : '') + '" onclick="event.stopPropagation();window.toggleLike(\'' + p.id + '\')">' + heart(on) + ' ' + (p.likes || 0) + '</button>'; }
 
-function excerpt(body, len) { const t = body.replace(/\n/g,' ').trim(); return t.length > len ? t.slice(0, len) + '…' : t; }
+function bodyToHtml(body) {
+  return body.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+function excerpt(body, len) {
+  // Split into lines, skip blank/credit lines at top for card preview
+  const lines = body.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  // If first line looks like a "Posted by" credit, show it separately and use rest as content
+  const creditLine = lines[0] && /^posted by[:\s]/i.test(lines[0]) ? lines[0] : null;
+  const contentLines = creditLine ? lines.slice(1) : lines;
+  const content = contentLines.join(' ').trim();
+  const preview = content.length > len ? content.slice(0, len) + '…' : content;
+  return (creditLine ? '<span style="font-style:italic;display:block;margin-bottom:6px;">' + creditLine + '</span>' : '') + preview;
+}
 function featuredCard(p) { return '<div class="featured-main" style="cursor:pointer;" onclick="window.openArticle(\'' + p.id + '\')">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + excerpt(p.body, 200) + '</div><span class="read-more">Read more →</span><div class="ameta"><div class="ameta-info">By <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '') + '</div>' + likeHtml(p) + '</div></div>'; }
 function sideCard(p) { return '<div class="side-item" style="cursor:pointer;" onclick="window.openArticle(\'' + p.id + '\')">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + excerpt(p.body, 100) + '</div><span class="read-more">Read more →</span><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
 function gridCard(p) { return '<div class="news-card" style="cursor:pointer;" onclick="window.openArticle(\'' + p.id + '\')">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + excerpt(p.body, 110) + '</div><span class="read-more">Read more →</span><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
@@ -679,12 +691,21 @@ window.closeModal = closeModal;
 window.openArticle = function(id) {
   const p = allPosts.find(x => x.id === id); if (!p) return;
   const body = document.getElementById('readModalBody');
+  // Detect and style a "Posted by:" first line
+  const lines = p.body.split('\n');
+  let creditHtml = '';
+  let articleBody = p.body;
+  if (lines[0] && /^posted by[:\s]/i.test(lines[0].trim())) {
+    creditHtml = '<div style="font-family:\'DM Sans\',sans-serif;font-size:12px;color:var(--muted);font-style:italic;margin-bottom:16px;padding:8px 12px;background:#f5f3ef;border-left:3px solid var(--rule);">' + lines[0].trim().replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+    articleBody = lines.slice(1).join('\n').replace(/^\n+/, '');
+  }
   body.innerHTML =
     (p.image ? '<img src="' + p.image + '" alt="" class="article-full-img">' : '') +
     '<span class="atag ' + p.tag + '" style="margin-bottom:14px;">' + p.tag + '</span>' +
     '<div class="article-full-title">' + p.title + '</div>' +
     '<div class="article-full-meta">By <strong>' + p.author + '</strong> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '') + '</div>' +
-    '<div class="article-body">' + p.body.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+    creditHtml +
+    '<div class="article-body">' + bodyToHtml(articleBody) + '</div>';
   openModal('readOverlay');
 };
 
