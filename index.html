@@ -111,15 +111,6 @@
   .atag.robots{background:#2d4a5c;}
   .atag.everyday{background:#5c2d1a;}
   .atag.environment{background:#2d5c1a;}
-  .atag.hardware{background:#3d2b1a;}
-  .atag.robotics{background:#1a3d2b;}
-  .atag.healthcare{background:#2b1a3d;}
-  .atag.education{background:#3d1a1a;}
-  .atag.ethics{background:#1a1a3d;}
-  .atag.opensource{background:#1a3a1a;}
-  .atag.startups{background:#3a1a3a;}
-  .atag.science{background:#1a3a3a;}
-  .atag.opinion{background:#3a2a1a;}
   .aheadline{font-family:'Playfair Display',serif;font-weight:700;line-height:1.25;color:var(--ink);margin-bottom:8px;}
   .featured-main .aheadline{font-size:1.9rem;}
   .side-item .aheadline{font-size:1.05rem;}
@@ -209,15 +200,6 @@
       <span onclick="filterNav(this,'robots')">Robots</span>
       <span onclick="filterNav(this,'everyday')">Everyday AI</span>
       <span onclick="filterNav(this,'environment')">Environment</span>
-      <span onclick="filterNav(this,'hardware')">Hardware</span>
-      <span onclick="filterNav(this,'robotics')">Robotics</span>
-      <span onclick="filterNav(this,'healthcare')">Healthcare</span>
-      <span onclick="filterNav(this,'education')">Education</span>
-      <span onclick="filterNav(this,'ethics')">Ethics</span>
-      <span onclick="filterNav(this,'opensource')">Open Source</span>
-      <span onclick="filterNav(this,'startups')">Startups</span>
-      <span onclick="filterNav(this,'science')">Science</span>
-      <span onclick="filterNav(this,'opinion')">Opinion</span>
     </div>
     <div class="nav-auth" id="navAuth"></div>
   </nav>
@@ -294,20 +276,14 @@
       <div class="form-group">
         <label>Category</label>
         <div class="tag-select" id="tagPicker">
-          <div class="tag-option selected" data-tag="models">Models</div>
-          <div class="tag-option" data-tag="research">Research</div>
-          <div class="tag-option" data-tag="policy">Policy</div>
-          <div class="tag-option" data-tag="industry">Industry</div>
-          <div class="tag-option" data-tag="tools">Tools</div>
-          <div class="tag-option" data-tag="hardware">Hardware</div>
-          <div class="tag-option" data-tag="robotics">Robotics</div>
-          <div class="tag-option" data-tag="healthcare">Healthcare</div>
+          <div class="tag-option selected" data-tag="healthcare">Healthcare</div>
           <div class="tag-option" data-tag="education">Education</div>
-          <div class="tag-option" data-tag="ethics">Ethics</div>
-          <div class="tag-option" data-tag="opensource">Open Source</div>
-          <div class="tag-option" data-tag="startups">Startups</div>
+          <div class="tag-option" data-tag="business">Business</div>
           <div class="tag-option" data-tag="science">Science</div>
-          <div class="tag-option" data-tag="opinion">Opinion</div>
+          <div class="tag-option" data-tag="government">Gov & Law</div>
+          <div class="tag-option" data-tag="robots">Robots</div>
+          <div class="tag-option" data-tag="everyday">Everyday AI</div>
+          <div class="tag-option" data-tag="environment">Environment</div>
         </div>
       </div>
       <div class="form-group"><label>Article Body</label><textarea id="pBody" placeholder="Write your article here..."></textarea></div>
@@ -365,7 +341,7 @@ const db = getFirestore(app);
 // ── STATE ──
 let me = null; // { uid, email, displayName, role }
 let allPosts = [];
-let selTag = 'models';
+let selTag = 'healthcare';
 let curFilter = 'all';
 let editingId = null;
 let unsubPosts = null;
@@ -580,7 +556,7 @@ window.openCompose = function(postId) {
     document.getElementById('editId').value = '';
     document.getElementById('pTitle').value = '';
     document.getElementById('pBody').value = '';
-    selTag = 'models';
+    selTag = 'healthcare';
   }
   document.querySelectorAll('.tag-option').forEach(t => t.classList.toggle('selected', t.dataset.tag === selTag));
   openModal('composeOverlay');
