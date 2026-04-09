@@ -108,7 +108,6 @@
   .atag.business{background:#5c3a1a;}
   .atag.science{background:#1a4a5c;}
   .atag.government{background:#4a2c6e;}
-  .atag.robots{background:#2d4a5c;}
   .atag.everyday{background:#5c2d1a;}
   .atag.environment{background:#2d5c1a;}
   .aheadline{font-family:'Playfair Display',serif;font-weight:700;line-height:1.25;color:var(--ink);margin-bottom:8px;}
@@ -145,6 +144,15 @@
   .toast.show{transform:translateY(0);opacity:1;}
   .toast.ok{background:var(--green);}
   .toast.err{background:var(--accent);}
+  .read-more-btn{display:inline-block;margin-top:6px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);cursor:pointer;font-weight:600;background:none;border:none;padding:0;}
+  .read-more-btn:hover{text-decoration:underline;}
+  .modal.article{max-width:760px;}
+  .article-modal-body{padding:30px 36px;max-height:78vh;overflow-y:auto;}
+  .article-modal-tag{display:inline-block;color:white;font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;font-weight:600;margin-bottom:14px;border-radius:1px;background:var(--ink);}
+  .article-modal-img{width:100%;max-height:320px;object-fit:cover;border:1px solid var(--rule);margin-bottom:20px;display:block;}
+  .article-modal-headline{font-family:'Playfair Display',serif;font-weight:700;font-size:2rem;line-height:1.2;color:var(--ink);margin-bottom:14px;}
+  .article-modal-meta{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--rule);}
+  .article-modal-body-text{font-family:'Source Serif 4',serif;font-size:1rem;line-height:1.8;color:var(--ink);white-space:pre-wrap;}
   @media(max-width:768px){
     *{max-width:100%;word-break:break-word;}
     .masthead-top{padding:8px 12px;flex-direction:column;gap:4px;text-align:center;}
@@ -197,7 +205,6 @@
       <span onclick="filterNav(this,'business')">Business</span>
       <span onclick="filterNav(this,'science')">Science</span>
       <span onclick="filterNav(this,'government')">Gov & Law</span>
-      <span onclick="filterNav(this,'robots')">Robots</span>
       <span onclick="filterNav(this,'everyday')">Everyday AI</span>
       <span onclick="filterNav(this,'environment')">Environment</span>
     </div>
@@ -281,7 +288,6 @@
           <div class="tag-option" data-tag="business">Business</div>
           <div class="tag-option" data-tag="science">Science</div>
           <div class="tag-option" data-tag="government">Gov & Law</div>
-          <div class="tag-option" data-tag="robots">Robots</div>
           <div class="tag-option" data-tag="everyday">Everyday AI</div>
           <div class="tag-option" data-tag="environment">Environment</div>
         </div>
@@ -313,6 +319,17 @@
       <div class="admin-pane active" id="apane-users"><div class="loading-state">Loading users...</div></div>
       <div class="admin-pane" id="apane-pending"><div class="loading-state">Loading...</div></div>
     </div>
+  </div>
+</div>
+
+<!-- READ MORE MODAL -->
+<div class="overlay" id="readOverlay">
+  <div class="modal article">
+    <div class="modal-header">
+      <h2 id="readModalTitle" style="font-size:1rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85%;">Article</h2>
+      <button class="modal-close" onclick="closeModal('readOverlay')">&#x2715;</button>
+    </div>
+    <div class="article-modal-body" id="readModalContent"></div>
   </div>
 </div>
 
@@ -637,9 +654,10 @@ function canEdit(p) { return me && (me.role === 'admin' || (me.role === 'poster'
 function ctrlHtml(p) { if (!canEdit(p)) return ''; return '<div class="card-ctrl"><button class="ctrl-e" onclick="window.openCompose(\'' + p.id + '\')">Edit</button><button class="ctrl-d" onclick="window.deletePost(\'' + p.id + '\')">Delete</button></div>'; }
 function likeHtml(p) { const on = isLiked(p); return '<button class="like-btn ' + (on ? 'liked' : '') + '" onclick="window.toggleLike(\'' + p.id + '\')">' + heart(on) + ' ' + (p.likes || 0) + '</button>'; }
 
-function featuredCard(p) { return '<div class="featured-main">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 200 ? p.body.slice(0, 200) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info">By <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '') + '</div>' + likeHtml(p) + '</div></div>'; }
-function sideCard(p) { return '<div class="side-item">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 100 ? p.body.slice(0, 100) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
-function gridCard(p) { return '<div class="news-card">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 110 ? p.body.slice(0, 110) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
+function fmtBody(text) { return text.replace(/\n/g, '<br>'); }
+function featuredCard(p) { return '<div class="featured-main">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 200 ? fmtBody(p.body.slice(0, 200)) + '...' : fmtBody(p.body)) + '</div>' + (p.body.length > 200 ? '<button class="read-more-btn" onclick="window.openReadModal(\'' + p.id + '\')">Read more →</button>' : '') + '<div class="ameta"><div class="ameta-info"><em>Posted by</em> <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '') + '</div>' + likeHtml(p) + '</div></div>'; }
+function sideCard(p) { return '<div class="side-item">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 100 ? fmtBody(p.body.slice(0, 100)) + '...' : fmtBody(p.body)) + '</div>' + (p.body.length > 100 ? '<button class="read-more-btn" onclick="window.openReadModal(\'' + p.id + '\')">Read more →</button>' : '') + '<div class="ameta"><div class="ameta-info"><em>Posted by</em> <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
+function gridCard(p) { return '<div class="news-card">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 110 ? fmtBody(p.body.slice(0, 110)) + '...' : fmtBody(p.body)) + '</div>' + (p.body.length > 110 ? '<button class="read-more-btn" onclick="window.openReadModal(\'' + p.id + '\')">Read more →</button>' : '') + '<div class="ameta"><div class="ameta-info"><em>Posted by</em> <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
 
 function renderPosts() {
   let posts = allPosts;
@@ -664,6 +682,23 @@ window.openModal = openModal;
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 window.closeModal = closeModal;
+
+// ── READ MORE ──
+window.openReadModal = function(id) {
+  const p = allPosts.find(x => x.id === id); if (!p) return;
+  document.getElementById('readModalTitle').textContent = p.title;
+  const tag = p.tag || '';
+  const tagColors = {healthcare:'#1a5c3a',education:'#1a3a5c',business:'#5c3a1a',science:'#1a4a5c',government:'#4a2c6e',everyday:'#5c2d1a',environment:'#2d5c1a'};
+  const tagColor = tagColors[tag] || '#1a1a1a';
+  let html = '';
+  if (p.image) html += '<img src="' + p.image + '" alt="" class="article-modal-img">';
+  html += '<span class="article-modal-tag" style="background:' + tagColor + '">' + tag + '</span>';
+  html += '<div class="article-modal-headline">' + p.title + '</div>';
+  html += '<div class="article-modal-meta"><em>Posted by</em> <strong>' + p.author + '</strong> &nbsp;·&nbsp; ' + fmt(p.createdAt) + (p.editedAt ? ' &nbsp;·&nbsp; <em>Edited</em>' : '') + '</div>';
+  html += '<div class="article-modal-body-text">' + p.body + '</div>';
+  document.getElementById('readModalContent').innerHTML = html;
+  openModal('readOverlay');
+};
 
 // ── TOAST ──
 let _tt;
