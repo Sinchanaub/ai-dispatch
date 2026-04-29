@@ -108,6 +108,7 @@
   .atag.business{background:#5c3a1a;}
   .atag.science{background:#1a4a5c;}
   .atag.government{background:#4a2c6e;}
+  .atag.robots{background:#2d4a5c;}
   .atag.everyday{background:#5c2d1a;}
   .atag.environment{background:#2d5c1a;}
   .aheadline{font-family:'Playfair Display',serif;font-weight:700;line-height:1.25;color:var(--ink);margin-bottom:8px;}
@@ -144,15 +145,6 @@
   .toast.show{transform:translateY(0);opacity:1;}
   .toast.ok{background:var(--green);}
   .toast.err{background:var(--accent);}
-  .read-more-btn{display:inline-block;margin-top:6px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);cursor:pointer;font-weight:600;background:none;border:none;padding:0;}
-  .read-more-btn:hover{text-decoration:underline;}
-  .modal.article{max-width:760px;}
-  .article-modal-body{padding:30px 36px;max-height:78vh;overflow-y:auto;}
-  .article-modal-tag{display:inline-block;color:white;font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;font-weight:600;margin-bottom:14px;border-radius:1px;background:var(--ink);}
-  .article-modal-img{width:100%;max-height:320px;object-fit:cover;border:1px solid var(--rule);margin-bottom:20px;display:block;}
-  .article-modal-headline{font-family:'Playfair Display',serif;font-weight:700;font-size:2rem;line-height:1.2;color:var(--ink);margin-bottom:14px;}
-  .article-modal-meta{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--rule);}
-  .article-modal-body-text{font-family:'Source Serif 4',serif;font-size:1rem;line-height:1.8;color:var(--ink);white-space:pre-wrap;}
   @media(max-width:768px){
     *{max-width:100%;word-break:break-word;}
     .masthead-top{padding:8px 12px;flex-direction:column;gap:4px;text-align:center;}
@@ -182,6 +174,25 @@
     .users-table{font-size:11px;}
     .users-table td,.users-table th{padding:6px 6px;}
   }
+
+  /* ── BOTTOM NAV ── */
+  body{padding-bottom:70px;}
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:60px;background:var(--white);border-top:2px solid var(--ink);display:flex;z-index:500;}
+  .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:500;color:var(--muted);transition:all .2s;}
+  .bnav-btn:hover{color:var(--ink);}
+  .bnav-btn.active{color:var(--accent);}
+  .bnav-btn.active svg{stroke:var(--accent);}
+  /* ── RESOURCES ── */
+  .res-section-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:16px;}
+  .res-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:8px;}
+  .res-card{display:flex;align-items:center;gap:12px;padding:14px;background:white;border:1px solid var(--rule);border-radius:4px;text-decoration:none;color:var(--ink);transition:all .2s;}
+  .res-card:hover{border-color:var(--ink);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.08);}
+  .res-logo{width:42px;height:42px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .res-info{flex:1;min-width:0;}
+  .res-name{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+  .res-desc{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);line-height:1.4;}
+  .res-arrow{font-size:16px;color:var(--muted);flex-shrink:0;}
+  @media(max-width:768px){.res-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -205,6 +216,7 @@
       <span onclick="filterNav(this,'business')">Business</span>
       <span onclick="filterNav(this,'science')">Science</span>
       <span onclick="filterNav(this,'government')">Gov & Law</span>
+      <span onclick="filterNav(this,'robots')">Robots</span>
       <span onclick="filterNav(this,'everyday')">Everyday AI</span>
       <span onclick="filterNav(this,'environment')">Environment</span>
     </div>
@@ -224,6 +236,8 @@
   </div>
 </div>
 
+<!-- HOME PAGE -->
+<div id="homePage">
 <main class="container">
   <div id="pendingBanner" style="display:none;" class="pending-banner">
     <span>⏳</span>
@@ -237,6 +251,82 @@
   </div>
   <div id="postsArea"><div class="loading-state">Loading articles...</div></div>
 </main>
+</div>
+
+<!-- RESOURCES PAGE -->
+<div id="resourcesPage" style="display:none;">
+  <div class="container">
+    <div class="section-label">AI News &amp; Research Resources</div>
+    <div class="res-section-title">📰 AI News</div>
+    <div class="res-grid">
+      <a href="https://techcrunch.com/category/artificial-intelligence/" target="_blank" class="res-card">
+        <div class="res-logo" style="background:#0a0a0a;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;">TC</div>
+        <div class="res-info"><div class="res-name">TechCrunch AI</div><div class="res-desc">Latest AI startup news, funding rounds and product launches</div></div>
+        <div class="res-arrow">→</div>
+      </a>
+      <a href="https://www.technologyreview.com/topic/artificial-intelligence/" target="_blank" class="res-card">
+        <div class="res-logo" style="background:#cc0000;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:11px;">MIT</div>
+        <div class="res-info"><div class="res-name">MIT Technology Review</div><div class="res-desc">In-depth analysis on AI breakthroughs and their implications</div></div>
+        <div class="res-arrow">→</div>
+      </a>
+      <a href="https://www.theverge.com/ai-artificial-intelligence" target="_blank" class="res-card">
+        <div class="res-logo" style="background:#fa4b2a;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;">V</div>
+        <div class="res-info"><div class="res-name">The Verge — AI</div><div class="res-desc">Consumer AI news, reviews and tech culture coverage</div></div>
+        <div class="res-arrow">→</div>
+      </a>
+      <a href="https://www.wired.com/tag/artificial-intelligence/" target="_blank" class="res-card">
+        <div class="res-logo" style="background:#000;color:white;font-family:'DM Sans',sans-serif;font-weight:900;font-size:11px;">WRD</div>
+        <div class="res-info"><div class="res-name">Wired AI</div><div class="res-desc">Long-form AI journalism covering society, science and tech</div></div>
+        <div class="res-arrow">→</div>
+      </a>
+      <a href="https://venturebeat.com/category/ai/" target="_blank" class="res-card">
+        <div class="res-logo" style="background:#1a1aff;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:11px;">VB</div>
+        <div class="res-info"><div class="res-name">VentureBeat AI</div><div class="res-desc">Enterprise AI, machine learning and business transformation</div></div>
+        <div class="res-arrow">→</div>
+      </a>
+    </div>
+    <div class="res-section-title" style="margin-top:36px;">🔬 AI Research</div>
+    <div class="res-grid">
+      <a href="https://arxiv.org/list/cs.AI/recent" target="_blank" class="res-card">
+        <div class="res-logo" style="background:#b31b1b;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:11px;">arX</div>
+        <div class="res-info"><div class="res-name">ArXiv — AI Papers</div><div class="res-desc">Free access to the latest AI and ML research papers worldwide</div></div>
+        <div class="res-arrow">→</div>
+      </a>
+      <a href="https://ai.googleblog.com/" target="_blank" class="res-card">
+        <div class="res-logo" style="background:#4285f4;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:11px;">G</div>
+        <div class="res-info"><div class="res-name">Google AI Blog</div><div class="res-desc">Research updates and breakthroughs directly from Google AI</div></div>
+        <div class="res-arrow">→</div>
+      </a>
+      <a href="https://openai.com/news/" target="_blank" class="res-card">
+        <div class="res-logo" style="background:#10a37f;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:11px;">OAI</div>
+        <div class="res-info"><div class="res-name">OpenAI Blog</div><div class="res-desc">Official research, safety updates and product news from OpenAI</div></div>
+        <div class="res-arrow">→</div>
+      </a>
+      <a href="https://deepmind.google/discover/blog/" target="_blank" class="res-card">
+        <div class="res-logo" style="background:#5f6368;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:11px;">DM</div>
+        <div class="res-info"><div class="res-name">DeepMind Blog</div><div class="res-desc">Cutting-edge AI research in science, health and robotics</div></div>
+        <div class="res-arrow">→</div>
+      </a>
+      <a href="https://huggingface.co/blog" target="_blank" class="res-card">
+        <div class="res-logo" style="background:#ff9d00;color:white;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;">🤗</div>
+        <div class="res-info"><div class="res-name">Hugging Face Blog</div><div class="res-desc">Open-source AI models, datasets and community research</div></div>
+        <div class="res-arrow">→</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="bnav-btn active" id="bnav-home" onclick="switchPage('home')">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="bnav-btn" id="bnav-resources" onclick="switchPage('resources')">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    <span>Resources</span>
+  </button>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -288,6 +378,7 @@
           <div class="tag-option" data-tag="business">Business</div>
           <div class="tag-option" data-tag="science">Science</div>
           <div class="tag-option" data-tag="government">Gov & Law</div>
+          <div class="tag-option" data-tag="robots">Robots</div>
           <div class="tag-option" data-tag="everyday">Everyday AI</div>
           <div class="tag-option" data-tag="environment">Environment</div>
         </div>
@@ -319,17 +410,6 @@
       <div class="admin-pane active" id="apane-users"><div class="loading-state">Loading users...</div></div>
       <div class="admin-pane" id="apane-pending"><div class="loading-state">Loading...</div></div>
     </div>
-  </div>
-</div>
-
-<!-- READ MORE MODAL -->
-<div class="overlay" id="readOverlay">
-  <div class="modal article">
-    <div class="modal-header">
-      <h2 id="readModalTitle" style="font-size:1rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85%;">Article</h2>
-      <button class="modal-close" onclick="closeModal('readOverlay')">&#x2715;</button>
-    </div>
-    <div class="article-modal-body" id="readModalContent"></div>
   </div>
 </div>
 
@@ -654,10 +734,9 @@ function canEdit(p) { return me && (me.role === 'admin' || (me.role === 'poster'
 function ctrlHtml(p) { if (!canEdit(p)) return ''; return '<div class="card-ctrl"><button class="ctrl-e" onclick="window.openCompose(\'' + p.id + '\')">Edit</button><button class="ctrl-d" onclick="window.deletePost(\'' + p.id + '\')">Delete</button></div>'; }
 function likeHtml(p) { const on = isLiked(p); return '<button class="like-btn ' + (on ? 'liked' : '') + '" onclick="window.toggleLike(\'' + p.id + '\')">' + heart(on) + ' ' + (p.likes || 0) + '</button>'; }
 
-function fmtBody(text) { return text.replace(/\n/g, '<br>'); }
-function featuredCard(p) { return '<div class="featured-main">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 200 ? fmtBody(p.body.slice(0, 200)) + '...' : fmtBody(p.body)) + '</div>' + (p.body.length > 200 ? '<button class="read-more-btn" onclick="window.openReadModal(\'' + p.id + '\')">Read more →</button>' : '') + '<div class="ameta"><div class="ameta-info"><em>Posted by</em> <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '') + '</div>' + likeHtml(p) + '</div></div>'; }
-function sideCard(p) { return '<div class="side-item">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 100 ? fmtBody(p.body.slice(0, 100)) + '...' : fmtBody(p.body)) + '</div>' + (p.body.length > 100 ? '<button class="read-more-btn" onclick="window.openReadModal(\'' + p.id + '\')">Read more →</button>' : '') + '<div class="ameta"><div class="ameta-info"><em>Posted by</em> <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
-function gridCard(p) { return '<div class="news-card">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 110 ? fmtBody(p.body.slice(0, 110)) + '...' : fmtBody(p.body)) + '</div>' + (p.body.length > 110 ? '<button class="read-more-btn" onclick="window.openReadModal(\'' + p.id + '\')">Read more →</button>' : '') + '<div class="ameta"><div class="ameta-info"><em>Posted by</em> <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
+function featuredCard(p) { return '<div class="featured-main">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 200 ? p.body.slice(0, 200) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info">By <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '') + '</div>' + likeHtml(p) + '</div></div>'; }
+function sideCard(p) { return '<div class="side-item">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 100 ? p.body.slice(0, 100) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
+function gridCard(p) { return '<div class="news-card">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 110 ? p.body.slice(0, 110) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
 
 function renderPosts() {
   let posts = allPosts;
@@ -683,29 +762,19 @@ function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 window.closeModal = closeModal;
 
-// ── READ MORE ──
-window.openReadModal = function(id) {
-  const p = allPosts.find(x => x.id === id); if (!p) return;
-  document.getElementById('readModalTitle').textContent = p.title;
-  const tag = p.tag || '';
-  const tagColors = {healthcare:'#1a5c3a',education:'#1a3a5c',business:'#5c3a1a',science:'#1a4a5c',government:'#4a2c6e',everyday:'#5c2d1a',environment:'#2d5c1a'};
-  const tagColor = tagColors[tag] || '#1a1a1a';
-  let html = '';
-  if (p.image) html += '<img src="' + p.image + '" alt="" class="article-modal-img">';
-  html += '<span class="article-modal-tag" style="background:' + tagColor + '">' + tag + '</span>';
-  html += '<div class="article-modal-headline">' + p.title + '</div>';
-  html += '<div class="article-modal-meta"><em>Posted by</em> <strong>' + p.author + '</strong> &nbsp;·&nbsp; ' + fmt(p.createdAt) + (p.editedAt ? ' &nbsp;·&nbsp; <em>Edited</em>' : '') + '</div>';
-  html += '<div class="article-modal-body-text">' + p.body + '</div>';
-  document.getElementById('readModalContent').innerHTML = html;
-  openModal('readOverlay');
-};
-
 // ── TOAST ──
 let _tt;
 function showToast(msg, type) {
   const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show ' + (type || '');
   clearTimeout(_tt); _tt = setTimeout(() => t.classList.remove('show'), 3200);
 }
+
+window.switchPage = function(page) {
+  document.getElementById('homePage').style.display = page === 'home' ? 'block' : 'none';
+  document.getElementById('resourcesPage').style.display = page === 'resources' ? 'block' : 'none';
+  document.getElementById('bnav-home').classList.toggle('active', page === 'home');
+  document.getElementById('bnav-resources').classList.toggle('active', page === 'resources');
+};
 </script>
 </body>
 </html>
