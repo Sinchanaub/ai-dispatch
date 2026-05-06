@@ -17,7 +17,7 @@
   .masthead-rule{height:4px;background:var(--ink);margin:0 40px;}
   .nav-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 40px;font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;}
   .nav-links{display:flex;gap:18px;flex-wrap:wrap;}
-  .nav-links span{cursor:pointer;color:var(--ink);font-weight:500;transition:color .2s;padding-bottom:2px;}
+  .nav-links span{cursor:pointer;color:var(--muted);font-weight:500;transition:color .2s;padding-bottom:2px;}
   .nav-links span:hover{color:var(--accent);}
   .nav-links span.active{color:var(--accent);border-bottom:2px solid var(--accent);}
   .nav-auth{display:flex;gap:10px;align-items:center;}
@@ -193,6 +193,20 @@
   .res-desc{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);line-height:1.4;}
   .res-arrow{font-size:16px;color:var(--muted);flex-shrink:0;}
   @media(max-width:768px){.res-grid{grid-template-columns:1fr;}}
+
+  /* ── READ MORE MODAL ── */
+  .article-modal-body{padding:28px;max-height:80vh;overflow-y:auto;}
+  .article-modal-img{width:100%;max-height:300px;object-fit:cover;border:1px solid var(--rule);margin-bottom:20px;border-radius:2px;}
+  .article-modal-tag{display:inline-block;color:white;font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;font-weight:600;margin-bottom:12px;border-radius:1px;background:var(--ink);}
+  .article-modal-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;line-height:1.25;color:var(--ink);margin-bottom:10px;}
+  .article-modal-meta{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--rule);}
+  .article-modal-body-text{font-size:1rem;line-height:1.8;color:var(--ink);}
+  .read-more-btn{background:none;border:none;color:var(--accent);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:0;margin-top:6px;text-decoration:underline;}
+  .read-more-btn:hover{color:#a93226;}
+  /* ── CATEGORY NAV MOBILE ── */
+  .nav-links span{color:var(--accent) !important;font-weight:600;}
+  .nav-links span.active{color:var(--accent) !important;border-bottom:2px solid var(--accent);}
+  .nav-links span:not(.active){color:var(--ink) !important;font-weight:500;}
 </style>
 </head>
 <body>
@@ -329,6 +343,24 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ARTICLE READ MORE MODAL -->
+<div class="overlay" id="articleOverlay">
+  <div class="modal wide">
+    <div class="modal-header">
+      <h2 id="articleModalTitle" style="font-size:1rem;"></h2>
+      <button class="modal-close" onclick="closeModal('articleOverlay')">&#x2715;</button>
+    </div>
+    <div class="article-modal-body">
+      <img id="articleModalImg" class="article-modal-img" style="display:none;" alt="">
+      <span id="articleModalTag" class="article-modal-tag"></span>
+      <div id="articleModalHeadline" class="article-modal-title"></div>
+      <div id="articleModalMeta" class="article-modal-meta"></div>
+      <div id="articleModalText" class="article-modal-body-text"></div>
+    </div>
+  </div>
+</div>
+
 
 <!-- AUTH MODAL -->
 <div class="overlay" id="authOverlay">
@@ -734,9 +766,9 @@ function canEdit(p) { return me && (me.role === 'admin' || (me.role === 'poster'
 function ctrlHtml(p) { if (!canEdit(p)) return ''; return '<div class="card-ctrl"><button class="ctrl-e" onclick="window.openCompose(\'' + p.id + '\')">Edit</button><button class="ctrl-d" onclick="window.deletePost(\'' + p.id + '\')">Delete</button></div>'; }
 function likeHtml(p) { const on = isLiked(p); return '<button class="like-btn ' + (on ? 'liked' : '') + '" onclick="window.toggleLike(\'' + p.id + '\')">' + heart(on) + ' ' + (p.likes || 0) + '</button>'; }
 
-function featuredCard(p) { return '<div class="featured-main">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 200 ? p.body.slice(0, 200) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info">By <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '') + '</div>' + likeHtml(p) + '</div></div>'; }
-function sideCard(p) { return '<div class="side-item">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 100 ? p.body.slice(0, 100) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
-function gridCard(p) { return '<div class="news-card">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 110 ? p.body.slice(0, 110) + '...' : p.body) + '</div><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
+function featuredCard(p) { return '<div class="featured-main">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 200 ? p.body.slice(0, 200) + '...' : p.body) + (p.body.length > 200 ? '<br><button class="read-more-btn" onclick="window.openArticle(\''+p.id+'\')">Read More</button>' : '') + '</div><div class="ameta"><div class="ameta-info">By <span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '') + '</div>' + likeHtml(p) + '</div></div>'; }
+function sideCard(p) { return '<div class="side-item">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 100 ? p.body.slice(0, 100) + '...' : p.body) + (p.body.length > 100 ? '<br><button class="read-more-btn" onclick="window.openArticle(\''+p.id+'\')">Read More</button>' : '') + '</div><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
+function gridCard(p) { return '<div class="news-card">' + ctrlHtml(p) + (p.image ? '<img src="' + p.image + '" alt="" class="aimg">' : '') + '<span class="atag ' + p.tag + '">' + p.tag + '</span><div class="aheadline">' + p.title + '</div><div class="aexcerpt">' + (p.body.length > 110 ? p.body.slice(0, 110) + '...' : p.body) + (p.body.length > 110 ? '<br><button class="read-more-btn" onclick="window.openArticle(\''+p.id+'\')">Read More</button>' : '') + '</div><div class="ameta"><div class="ameta-info"><span class="ameta-author">' + p.author + '</span> · ' + fmt(p.createdAt) + '</div>' + likeHtml(p) + '</div></div>'; }
 
 function renderPosts() {
   let posts = allPosts;
@@ -768,6 +800,20 @@ function showToast(msg, type) {
   const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show ' + (type || '');
   clearTimeout(_tt); _tt = setTimeout(() => t.classList.remove('show'), 3200);
 }
+
+
+window.openArticle = function(id) {
+  const p = allPosts.find(x => x.id === id); if (!p) return;
+  const img = document.getElementById('articleModalImg');
+  if (p.image) { img.src = p.image; img.style.display = 'block'; } else { img.style.display = 'none'; }
+  document.getElementById('articleModalTitle').textContent = p.title;
+  document.getElementById('articleModalTag').textContent = p.tag;
+  document.getElementById('articleModalTag').className = 'article-modal-tag ' + p.tag;
+  document.getElementById('articleModalHeadline').textContent = p.title;
+  document.getElementById('articleModalMeta').textContent = 'By ' + p.author + ' · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '');
+  document.getElementById('articleModalText').textContent = p.body;
+  openModal('articleOverlay');
+};
 
 window.switchPage = function(page) {
   document.getElementById('homePage').style.display = page === 'home' ? 'block' : 'none';
