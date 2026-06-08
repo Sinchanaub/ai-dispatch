@@ -814,7 +814,7 @@ window.openArticle = function(id) {
   document.getElementById('articleModalTag').className = 'article-modal-tag ' + p.tag;
   document.getElementById('articleModalHeadline').textContent = p.title;
   document.getElementById('articleModalMeta').textContent = 'By ' + p.author + ' · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '');
-  document.getElementById('articleModalText').textContent = p.body;
+  document.getElementById('articleModalText').innerHTML = p.body.replace(/\n/g, '<br>');
   openModal('articleOverlay');
 };
 
