@@ -402,6 +402,7 @@
     <div class="modal-body">
       <input type="hidden" id="editId">
       <div class="form-group"><label>Headline</label><input type="text" id="pTitle" placeholder="Write a compelling headline..."></div>
+      <div class="form-group"><label>Posted By</label><input type="text" id="pPostedBy" placeholder="Your name..."></div>
       <div class="form-group">
         <label>Category</label>
         <div class="tag-select" id="tagPicker">
@@ -678,6 +679,7 @@ window.openCompose = function(postId) {
     document.getElementById('editId').value = postId;
     document.getElementById('pTitle').value = p.title;
     document.getElementById('pBody').value = p.body;
+    document.getElementById('pPostedBy').value = p.author || '';
     selTag = p.tag;
     if (p.image) { document.getElementById('imgPrev').src = p.image; document.getElementById('imgPrev').style.display = 'block'; }
   } else {
@@ -685,6 +687,7 @@ window.openCompose = function(postId) {
     document.getElementById('editId').value = '';
     document.getElementById('pTitle').value = '';
     document.getElementById('pBody').value = '';
+    document.getElementById('pPostedBy').value = me ? (me.displayName || me.email) : '';
     selTag = 'healthcare';
   }
   document.querySelectorAll('.tag-option').forEach(t => t.classList.toggle('selected', t.dataset.tag === selTag));
@@ -715,10 +718,10 @@ window.publishPost = async function() {
       imageUrl = ex ? ex.image : null;
     }
     if (editingId) {
-      await updateDoc(doc(db, 'posts', editingId), { title, body, tag: selTag, image: imageUrl, editedAt: serverTimestamp() });
+      await updateDoc(doc(db, 'posts', editingId), { title, body, tag: selTag, image: imageUrl, author: (document.getElementById('pPostedBy').value.trim() || me.displayName || me.email), editedAt: serverTimestamp() });
       showToast('Article updated!', 'ok');
     } else {
-      await addDoc(collection(db, 'posts'), { title, body, tag: selTag, image: imageUrl, author: me.displayName || me.email, authorId: me.uid, createdAt: serverTimestamp(), likes: 0, likedBy: [] });
+      await addDoc(collection(db, 'posts'), { title, body, tag: selTag, image: imageUrl, author: (document.getElementById('pPostedBy').value.trim() || me.displayName || me.email), authorId: me.uid, createdAt: serverTimestamp(), likes: 0, likedBy: [] });
       showToast('Article published!', 'ok');
     }
     closeModal('composeOverlay');
@@ -810,7 +813,7 @@ window.openArticle = function(id) {
   document.getElementById('articleModalTag').textContent = p.tag;
   document.getElementById('articleModalTag').className = 'article-modal-tag ' + p.tag;
   document.getElementById('articleModalHeadline').textContent = p.title;
-  document.getElementById('articleModalMeta').innerHTML = '<span style="font-family:\'DM Sans\',sans-serif;font-size:11px;color:#aaa;font-style:italic;font-weight:400;">Posted by</span><br><strong>' + p.author + '</strong> · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '');
+  document.getElementById('articleModalMeta').textContent = 'By ' + p.author + ' · ' + fmt(p.createdAt) + (p.editedAt ? ' · Edited' : '');
   document.getElementById('articleModalText').innerHTML = p.body.replace(/\n/g, '<br>');
   openModal('articleOverlay');
 };
