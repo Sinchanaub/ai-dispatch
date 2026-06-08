@@ -103,14 +103,13 @@
   .news-grid{display:grid;grid-template-columns:repeat(3,1fr);border-left:1px solid var(--rule);border-top:1px solid var(--rule);margin-bottom:40px;}
   .news-card{padding:22px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);background:white;position:relative;}
   .atag{display:inline-block;color:white;font-family:'DM Sans',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;font-weight:600;margin-bottom:10px;border-radius:1px;background:var(--ink);}
-  .atag.healthcare{background:#1a5c3a;}
-  .atag.education{background:#1a3a5c;}
+  .atag.models{background:#1a3a5c;}
   .atag.business{background:#5c3a1a;}
-  .atag.science{background:#1a4a5c;}
-  .atag.government{background:#4a2c6e;}
-  .atag.robots{background:#2d4a5c;}
-  .atag.everyday{background:#5c2d1a;}
-  .atag.environment{background:#2d5c1a;}
+  .atag.policy{background:#4a2c6e;}
+  .atag.health{background:#1a5c3a;}
+  .atag.society{background:#5c1a1a;}
+  .atag.tech{background:#1a4a5c;}
+  .atag.general{background:#333;}
   .aheadline{font-family:'Playfair Display',serif;font-weight:700;line-height:1.25;color:var(--ink);margin-bottom:8px;}
   .featured-main .aheadline{font-size:1.9rem;}
   .side-item .aheadline{font-size:1.05rem;}
@@ -225,14 +224,12 @@
   <nav class="nav-bar">
     <div class="nav-links">
       <span class="active" onclick="filterNav(this,'all')">All</span>
-      <span onclick="filterNav(this,'healthcare')">Healthcare</span>
-      <span onclick="filterNav(this,'education')">Education</span>
-      <span onclick="filterNav(this,'business')">Business</span>
-      <span onclick="filterNav(this,'science')">Science</span>
-      <span onclick="filterNav(this,'government')">Gov & Law</span>
-      <span onclick="filterNav(this,'robots')">Robots</span>
-      <span onclick="filterNav(this,'everyday')">Everyday AI</span>
-      <span onclick="filterNav(this,'environment')">Environment</span>
+      <span onclick="filterNav(this,'models')">Models & Research</span>
+      <span onclick="filterNav(this,'business')">Business & Market</span>
+      <span onclick="filterNav(this,'policy')">Gov & Policy</span>
+      <span onclick="filterNav(this,'health')">Health & Science</span>
+      <span onclick="filterNav(this,'society')">Society & Jobs</span>
+      <span onclick="filterNav(this,'tech')">Tech & Tools</span>
     </div>
     <div class="nav-auth" id="navAuth"></div>
   </nav>
@@ -406,14 +403,12 @@
       <div class="form-group">
         <label>Category</label>
         <div class="tag-select" id="tagPicker">
-          <div class="tag-option selected" data-tag="healthcare">Healthcare</div>
-          <div class="tag-option" data-tag="education">Education</div>
-          <div class="tag-option" data-tag="business">Business</div>
-          <div class="tag-option" data-tag="science">Science</div>
-          <div class="tag-option" data-tag="government">Gov & Law</div>
-          <div class="tag-option" data-tag="robots">Robots</div>
-          <div class="tag-option" data-tag="everyday">Everyday AI</div>
-          <div class="tag-option" data-tag="environment">Environment</div>
+          <div class="tag-option selected" data-tag="models">Models & Research</div>
+          <div class="tag-option" data-tag="business">Business & Market</div>
+          <div class="tag-option" data-tag="policy">Gov & Policy</div>
+          <div class="tag-option" data-tag="health">Health & Science</div>
+          <div class="tag-option" data-tag="society">Society & Jobs</div>
+          <div class="tag-option" data-tag="tech">Tech & Tools</div>
         </div>
       </div>
       <div class="form-group"><label>Article Body</label><textarea id="pBody" placeholder="Write your article here..."></textarea></div>
@@ -471,7 +466,7 @@ const db = getFirestore(app);
 // ── STATE ──
 let me = null; // { uid, email, displayName, role }
 let allPosts = [];
-let selTag = 'healthcare';
+let selTag = 'models';
 let curFilter = 'all';
 let editingId = null;
 let unsubPosts = null;
@@ -688,7 +683,7 @@ window.openCompose = function(postId) {
     document.getElementById('pTitle').value = '';
     document.getElementById('pBody').value = '';
     document.getElementById('pPostedBy').value = me ? (me.displayName || me.email) : '';
-    selTag = 'healthcare';
+    selTag = 'models';
   }
   document.querySelectorAll('.tag-option').forEach(t => t.classList.toggle('selected', t.dataset.tag === selTag));
   openModal('composeOverlay');
